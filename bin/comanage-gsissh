@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+#
+# Very simple python wrapper
+#
+from pycomanage.gsissh import  GsiSshCLI 
+
+def main():
+    '''
+    Simplest possible invocation.
+    '''
+    apf =  GsiSshCLI 
+    apf.invoke()
+        
+if __name__ == "__main__":
+    main()

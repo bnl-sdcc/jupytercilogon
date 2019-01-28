@@ -1,24 +1,19 @@
-"""CILogon/COManage OAuthAuthenticator for JupyterHub
-
-Derived from CILogon OAuthenticator. John Hover <jhover@bnl.gov>
+"""CILogon OAuthAuthenticator for JupyterHub
 
 Uses OAuth 2.0 with cilogon.org (override with CILOGON_HOST)
-Adds in authorization control and Unix account generation using COManage group membership
-and attributes. 
 
 Caveats:
 
 - For user whitelist/admin purposes, username will be the ePPN by default.
   This is typically an email address and may not work as a Unix userid.
-  JupyterHub username is normalized to UNIX username by removing '.' and '@' chars. 
-  e.g. jhover@bnl.gov  -> jhoverbnlgov
-
+  Normalization may be required to turn the JupyterHub username into a Unix username.
 - Default username_claim of ePPN does not work for all providers,
   e.g. generic OAuth such as Google.
   Use `c.CILogonOAuthenticator.username_claim = 'email'` to use
   email instead of ePPN as the JupyterHub username.
-
 """
+
+
 import json
 import os
 
@@ -30,19 +25,19 @@ from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 
 from traitlets import Unicode, List, Bool, validate
 
-#from jupyterhub.auth import LocalAuthenticator
-from jupyterhub.comanage import LocalAuthenticator
+from jupyterhub.auth import LocalAuthenticator
 
 from .oauth2 import OAuthLoginHandler, OAuthenticator
 
 CILOGON_HOST = os.environ.get('CILOGON_HOST') or 'cilogon.org'
 
-class COManageMixin(OAuth2Mixin):
+
+class CILogonMixin(OAuth2Mixin):
     _OAUTH_AUTHORIZE_URL = "https://%s/authorize" % CILOGON_HOST
     _OAUTH_TOKEN_URL = "https://%s/oauth2/token" % CILOGON_HOST
 
 
-class COManageLoginHandler(OAuthLoginHandler, COManageMixin):
+class CILogonLoginHandler(OAuthLoginHandler, CILogonMixin):
     """See http://www.cilogon.org/oidc for general information."""
 
     def authorize_redirect(self, *args, **kwargs):
@@ -56,7 +51,7 @@ class COManageLoginHandler(OAuthLoginHandler, COManageMixin):
         return super().authorize_redirect(*args, **kwargs)
 
 
-class COManageOAuthenticator(OAuthenticator):
+class CILogonOAuthenticator(OAuthenticator):
     login_service = "CILogon"
 
     client_id_env = 'CILOGON_CLIENT_ID'
@@ -194,12 +189,7 @@ class COManageOAuthenticator(OAuthenticator):
         return userdict
 
 
-
-class LocalCOManageOAuthenticator(NormalizingLocalAuthenticator, COManageOAuthenticator):
+class LocalCILogonOAuthenticator(LocalAuthenticator, CILogonOAuthenticator):
 
     """A version that mixes in local system user creation"""
     pass
-
-
-
-
