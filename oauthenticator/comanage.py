@@ -61,9 +61,10 @@ class COManageOAuthenticator(OAuthenticator):
 
     client_id_env = 'CILOGON_CLIENT_ID'
     client_secret_env = 'CILOGON_CLIENT_SECRET'
-    login_handler = CILogonLoginHandler
+    #login_handler = CILogonLoginHandler
+    login_handler = COManageLoginHandler
 
-    scope = List(Unicode(), default_value=['openid', 'email', 'org.cilogon.userinfo'],
+    scope = List(Unicode(), default_value=['openid', 'email', 'profile', 'org.cilogon.userinfo'],
                  config=True,
                  help="""The OAuth scopes to request.
 
@@ -163,6 +164,9 @@ class COManageOAuthenticator(OAuthenticator):
                           )
         resp = yield http_client.fetch(req)
         resp_json = json.loads(resp.body.decode('utf8', 'replace'))
+
+        self.log.info("Userinfo response JSON: %s" % resp_json)
+
 
         username = resp_json.get(self.username_claim)
         if not username:
