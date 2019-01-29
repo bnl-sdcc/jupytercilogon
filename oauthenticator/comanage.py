@@ -31,7 +31,7 @@ from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from traitlets import Unicode, List, Bool, validate
 
 #from jupyterhub.auth import LocalAuthenticator
-from jupyterhub.comanage import LocalAuthenticator
+from jupyterhub.comanage import NormalizingLocalAuthenticator
 
 from .oauth2 import OAuthLoginHandler, OAuthenticator
 
