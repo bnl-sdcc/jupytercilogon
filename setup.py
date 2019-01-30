@@ -22,7 +22,8 @@ setup(
     install_requires=[],
     data_files=[
         # config and cron files
-        ('etc', ['etc/jupyterhub_config_comanage.py',
+        ('etc', ['etc/jupyterhub/jupyterhub_config_comanage.py',
+                 'etc/pycomanage.conf',
                        ]
          ),
         # sysconfig

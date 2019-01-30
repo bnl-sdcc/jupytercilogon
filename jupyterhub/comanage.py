@@ -1,4 +1,4 @@
-
+from jupyterhub.auth import LocalAuthenticator
 
 
 class NormalizingLocalAuthenticator(LocalAuthenticator):
