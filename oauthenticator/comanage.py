@@ -85,6 +85,10 @@ class COManageOAuthenticator(OAuthenticator):
         config=True,
         help="""A list of IDP which can be stripped from the username after the @ sign.""",
     )
+    comanage_group_whitelist = List(
+        config=True,
+        help="""Groups this user must belong to in order to be authorized.""",
+        )
     strip_idp_domain = Bool(
         False,
         config=True,
@@ -123,7 +127,7 @@ class COManageOAuthenticator(OAuthenticator):
     ismemberof_claim = Unicode(
         'isMemberOf',
         config=True,
-        help="""A list of COManage groups this user belongs to.""",
+        help="""Name of claim for valid user groups.""",
     )
 
 
@@ -190,8 +194,8 @@ class COManageOAuthenticator(OAuthenticator):
                 raise web.HTTPError(
                     500, "Trying to login from not whitelisted domain")
             if len(self.idp_whitelist) == 1 and self.strip_idp_domain:
-                username = gotten_name
-        
+                username = gotten_name       
+       
         if self.comanage_group_whitelist:
             gotten_groups = resp_json.get(self.ismemberof_claim)
             allowed = False
@@ -207,7 +211,7 @@ class COManageOAuthenticator(OAuthenticator):
                     500, "User belongs to no allowed groups.") 
         else:
             raise web.HTTPError(
-                    500, "No groups whitelisted in configuration!!") 
+                    500, "No groups whitelisted in configuration! Why use COManage?") 
         
         userdict = {"name": username}
         # Now we set up auth_state
