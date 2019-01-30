@@ -120,8 +120,8 @@ class COManageOAuthenticator(OAuthenticator):
             See http://www.cilogon.org/oidc for details.
         """,
     )
-    ismember_claim = List(
-        "isMemberOf",
+    ismemberof_claim = Unicode(
+        'isMemberOf',
         config=True,
         help="""A list of COManage groups this user belongs to.""",
     )
@@ -193,7 +193,7 @@ class COManageOAuthenticator(OAuthenticator):
                 username = gotten_name
         
         if self.comanage_group_whitelist:
-            gotten_groups = resp_json.get(self.ismember_claim)
+            gotten_groups = resp_json.get(self.ismemberof_claim)
             allowed = False
             okgroup = None
             for goodgroup in self.comanage_group_whitelist:
