@@ -34,6 +34,7 @@ from traitlets import Unicode, List, Bool, validate
 from jupyterhub.comanage import NormalizingLocalAuthenticator
 
 from .oauth2 import OAuthLoginHandler, OAuthenticator
+#from __builtin__ import True
 
 CILOGON_HOST = os.environ.get('CILOGON_HOST') or 'cilogon.org'
 
@@ -119,6 +120,12 @@ class COManageOAuthenticator(OAuthenticator):
             See http://www.cilogon.org/oidc for details.
         """,
     )
+    ismember_claim = List(
+        "isMemberOf",
+        config=True,
+        help="""A list of COManage groups this user belongs to.""",
+    )
+
 
     @gen.coroutine
     def authenticate(self, handler, data=None):
@@ -184,6 +191,24 @@ class COManageOAuthenticator(OAuthenticator):
                     500, "Trying to login from not whitelisted domain")
             if len(self.idp_whitelist) == 1 and self.strip_idp_domain:
                 username = gotten_name
+        
+        if self.comanage_group_whitelist:
+            gotten_groups = resp_json.get(self.ismember_claim)
+            allowed = False
+            okgroup = None
+            for goodgroup in self.comanage_group_whitelist:
+                if goodgroup in gotten_groups:
+                    okgroup = goodgroup
+                    allowed = True
+            if allowed:
+                self.log.info("User authorized by membership in %s" % okgroup)
+            else:
+                raise web.HTTPError(
+                    500, "User belongs to no allowed groups.") 
+        else:
+            raise web.HTTPError(
+                    500, "No groups whitelisted in configuration!!") 
+        
         userdict = {"name": username}
         # Now we set up auth_state
         userdict["auth_state"] = auth_state = {}
