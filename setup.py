@@ -15,7 +15,10 @@ setup(
     author_email='jhover@bnl.gov',
     url='https://github.com/bnl-sdcc/pycomanage',
     python_requires='>=2.7',
-    packages=find_packages(),
+    packages=[ 'pycomanage',
+               'oauthenticator',
+               'jupyterhub'
+               ],
     install_requires=[],
     data_files=[
         # config and cron files
