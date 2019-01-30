@@ -55,7 +55,7 @@ from .traitlets import Command
 
 
 from jupyterhub.auth import LocalAuthenticator
-from jupyterhub.spawner import LocalProcessSpawner
+from jupyterhub.spawner import LocalProcessSpawner, Spawner
 
 
 
