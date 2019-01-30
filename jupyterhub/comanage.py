@@ -204,6 +204,79 @@ class NormalizedLocalProcessSpawner(LocalProcessSpawner):
             self.db.commit()
         return (self.ip or '127.0.0.1', self.port)
 
+    
+    async def stop(self, now=False):
+        """Stop the single-user server process for the current user.
+
+        If `now` is False (default), shutdown the server as gracefully as possible,
+        e.g. starting with SIGINT, then SIGTERM, then SIGKILL.
+        If `now` is True, terminate the server immediately.
+
+        The coroutine should return when the process is no longer running.
+        """
+        if not now:
+            status = await self.poll()
+            if status is not None:
+                return
+            self.log.debug("Interrupting %i", self.pid)
+            await self._signal(signal.SIGINT)
+            await self.wait_for_death(self.interrupt_timeout)
+
+        # clean shutdown failed, use TERM
+        status = await self.poll()
+        if status is not None:
+            return
+        self.log.debug("Terminating %i", self.pid)
+        await self._signal(signal.SIGTERM)
+        await self.wait_for_death(self.term_timeout)
+
+        # TERM failed, use KILL
+        status = await self.poll()
+        if status is not None:
+            return
+        self.log.debug("Killing %i", self.pid)
+        await self._signal(signal.SIGKILL)
+        await self.wait_for_death(self.kill_timeout)
+
+        status = await self.poll()
+        if status is None:
+            # it all failed, zombie process
+            self.log.warning("Process %i never died", self.pid)
+
+
+    async def poll(self):
+        """Poll the spawned process to see if it is still running.
+
+        If the process is still running, we return None. If it is not running,
+        we return the exit code of the process if we have access to it, or 0 otherwise.
+        """
+        # if we started the process, poll with Popen
+        if self.proc is not None:
+            status = self.proc.poll()
+            if status is not None:
+                # clear state if the process is done
+                self.clear_state()
+            return status
+
+        # if we resumed from stored state,
+        # we don't have the Popen handle anymore, so rely on self.pid
+        if not self.pid:
+            # no pid, not running
+            self.clear_state()
+            return 0
+
+        # send signal 0 to check if PID exists
+        # this doesn't work on Windows, but that's okay because we don't support Windows.
+        alive = await self._signal(0)
+        if not alive:
+            self.clear_state()
+            return 0
+        else:
+            return None
+
+
+
+
 class NormalizedSpawner(Spawner):
 
     @property
