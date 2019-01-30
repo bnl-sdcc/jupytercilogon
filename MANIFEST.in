@@ -1,0 +1,6 @@
+include CHANGELOG LICENSE README
+include scripts/*
+include etc/*
+recursive-include oauthenticator *.py *.pyc *.pyo
+recursive-include pycomanage *.py *.pyc *.pyo
+recursive-include jupyterhub *.py *.pyc *.pyo
