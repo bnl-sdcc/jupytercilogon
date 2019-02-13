@@ -129,10 +129,6 @@ class NormalizingLocalAuthenticator(LocalAuthenticator):
 
 
 
-
-
-
-
 class NormalizedLocalProcessSpawner(LocalProcessSpawner):
 
     def user_env(self, env):
