@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pycomanage",
-    version='0.92',
+    version='0.93',
     description='Libraries and utilities for COManage/CILogon usage.',
     long_description='''Libraries and utilities for COManage/CILogon usage.''',
     license='BSD',

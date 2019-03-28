@@ -199,7 +199,7 @@ class COManageOAuthenticator(OAuthenticator):
         if self.comanage_group_whitelist:
             self.log.debug("comanage_group_whitelist %s" % self.comanage_group_whitelist)
             gotten_groups = resp_json.get(self.ismemberof_claim)
-            self.log.info("Gotten groups from response: %s" % gotten_groups)
+            self.log.info("Gotten groups from response: %s type: %s" % (gotten_groups, type(gotten_groups)))
             if gotten_groups is None:
                 gotten_groups = []
             
