@@ -197,7 +197,9 @@ class COManageOAuthenticator(OAuthenticator):
                 username = gotten_name       
        
         if self.comanage_group_whitelist:
+            self.log.debug("comanage_group_whitelist %s" % self.comanage_group_whitelist)
             gotten_groups = resp_json.get(self.ismemberof_claim)
+            self.log.info("Gotten groups from response: %s" % gotten_groups)
             allowed = False
             okgroup = None
             for goodgroup in self.comanage_group_whitelist:
