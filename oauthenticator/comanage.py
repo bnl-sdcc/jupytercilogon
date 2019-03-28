@@ -200,6 +200,9 @@ class COManageOAuthenticator(OAuthenticator):
             self.log.debug("comanage_group_whitelist %s" % self.comanage_group_whitelist)
             gotten_groups = resp_json.get(self.ismemberof_claim)
             self.log.info("Gotten groups from response: %s" % gotten_groups)
+            if gotten_groups is None:
+                gotten_groups = []
+            
             allowed = False
             okgroup = None
             for goodgroup in self.comanage_group_whitelist:
@@ -210,7 +213,7 @@ class COManageOAuthenticator(OAuthenticator):
                 self.log.info("User authorized by membership in %s" % okgroup)
             else:
                 raise web.HTTPError(
-                    500, "User belongs to no allowed groups.") 
+                    500, "User belongs to no authorized groups. Presented groups: %s" % gotten_groups) 
         else:
             raise web.HTTPError(
                     500, "No groups whitelisted in configuration! Why use COManage?") 
