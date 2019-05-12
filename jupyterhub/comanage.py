@@ -64,7 +64,6 @@ class NormalizingLocalAuthenticator(LocalAuthenticator):
     '''
     Creates local UNIX username from COManage/CILogon eppn. 
     
-    
     '''   
 
     @default('add_user_cmd')
