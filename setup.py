@@ -25,24 +25,7 @@ setup(
          ),
         ('etc/jupyterhub', ['etc/jupyterhub_config_comanage.py']
          ),        
-        
-        
-        # sysconfig
-        #('etc/sysconfig', ['templates/sysconfig/panda_harvester.rpmnew.template',
-        #                   ]
-        # ),
-        # init script
-        #('etc/rc.d/init.d', ['templates/init.d/panda_harvester.rpmnew.template',
-        #                     'templates/init.d/panda_harvester-apachectl.rpmnew.template',
-        #                     'templates/init.d/panda_harvester-uwsgi.rpmnew.template',
-        #                     ]
-        # ),
-        # admin tool
-        ('bin', ['scripts/comanage-gsissh',
-                 ]
-         ),
         ],
-    scripts=['scripts/comanage-gsissh']
     )
 
 
