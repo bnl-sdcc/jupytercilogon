@@ -15,8 +15,7 @@ setup(
     author_email='jhover@bnl.gov',
     url='https://github.com/bnl-sdcc/pycomanage',
     #python_requires='>=2.7',
-    packages=[ 'pycomanage',
-               'oauthenticator',
+    packages=[ 'oauthenticator',
                'jupyterhub'
                ],
     install_requires=[],
