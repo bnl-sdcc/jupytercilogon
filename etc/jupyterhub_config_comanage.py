@@ -18,6 +18,8 @@ os.environ['JUPYTERHUB_CRYPT_KEY'] = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #
 from oauthenticator.comanage import COManageOAuthenticator, LocalCOManageOAuthenticator
 from jupyterhub.comanage import NormalizedSpawner
+
+c.JupyterHub.spawner_class = 'jupyterhub.comanage.NormalizedSpawner'
 c.JupyterHub.authenticator_class = LocalCOManageOAuthenticator
 c.COManageOAuthenticator.comanage_group_whitelist = [ 'CO:members:active','bnl' ]
 c.COManageOAuthenticator.oauth_callback_url = 'https://jupyter05.sdcc.bnl.gov:8000/hub/oauth_callback'
@@ -45,11 +47,11 @@ from jupyterhub.comanage import MapfileSpawner
 
 
 
-# Standard Jupyterhub config
+# Standard Jupyterhub config, applies everywhere
 c.JupyterHub.cookie_secret_file = '/usr/local/anaconda3/etc/jupyterhub/jupyterhub_cookie_secret'
 c.ConfigurableHTTPProxy.debug = True
 c.JupyterHub.log_level = 10
-c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
+
 c.JupyterHub.ssl_cert = '/usr/local/anaconda3/etc/jupyterhub/ssl/certificate.crt'
 c.JupyterHub.ssl_key = '/usr/local/anaconda3/etc/jupyterhub/ssl/key.pem'
 c.Spawner.debug = True
