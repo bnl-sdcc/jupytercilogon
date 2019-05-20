@@ -131,8 +131,8 @@ class COManageLocalAuthenticator(LocalAuthenticator):
         elif self.unixname_source == 'eppn_mapfile':
             try:
                 unixname = self.match_eppn_mapfile(user.name)
-            except( Exception, ex):
-                raise RuntimeError("Failed to map user %s %s " % (user.name, ex))
+            except Exception as e:
+                raise RuntimeError("Failed to map user %s %s " % (user.name, e))
         self.log.info("Mapped %s to %s" % (user.name, unixname))
         return unixname
  
