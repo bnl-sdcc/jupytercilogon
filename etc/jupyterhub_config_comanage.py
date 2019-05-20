@@ -8,7 +8,7 @@ os.environ['CILOGON_CLIENT_SECRET'] = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 os.environ['JUPYTERHUB_CRYPT_KEY'] = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 
 from oauthenticator.comanage import COManageOAuthenticator, LocalCOManageOAuthenticator
-from jupyterhub.comanage import COManageSpawner
+from jupyterhub.comanage import COManageLocalProcessSpawner
 
 c.JupyterHub.spawner_class = 'jupyterhub.comanage.COManageSpawner'
 c.JupyterHub.authenticator_class = LocalCOManageOAuthenticator

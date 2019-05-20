@@ -224,21 +224,7 @@ class COManageLocalProcessSpawner(LocalProcessSpawner):
 
         return {"keyfile": key, "certfile": cert, "cafile": ca}
 
-
-
-class COManageSpawner(Spawner):
-    
-    @property
-    def _log_name(self):
-        """Return username:servername or username
-
-        Used in logging for consistency with named servers.
-        """
-        if self.name:
-            return '%s:%s' % (self.user.name, self.name)
-        else:
-            return self.user.name
-    
+   
 
         
         
