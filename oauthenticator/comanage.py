@@ -34,7 +34,7 @@ from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from traitlets import Unicode, List, Bool, validate
 
 #from jupyterhub.auth import LocalAuthenticator
-from jupyterhub.comanage import NormalizingLocalAuthenticator
+from jupyterhub.comanage import COManageLocalAuthenticator
 
 from .oauth2 import OAuthLoginHandler, OAuthenticator
 #from __builtin__ import True
@@ -237,7 +237,7 @@ class COManageOAuthenticator(OAuthenticator):
 
 
 
-class LocalCOManageOAuthenticator(NormalizingLocalAuthenticator, COManageOAuthenticator):
+class LocalCOManageOAuthenticator(COManageLocalAuthenticator, COManageOAuthenticator):
 
     """A version that mixes in local system user creation"""
     pass
