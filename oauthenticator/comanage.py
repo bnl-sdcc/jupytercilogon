@@ -132,7 +132,18 @@ class COManageOAuthenticator(OAuthenticator):
         config=True,
         help="""Name of claim for valid user groups.""",
     )
-
+    
+    unixname_source = Unicode(
+        'eppn_mapfile', 
+        config=True,
+        help="""Name of claim for valid user groups.""",
+    )
+    
+    eppn_mapfile = Unicode(
+        '/etc/globus/globus-acct-map',
+        config=True,
+        help="""Path to globus account map file.""",
+    )
 
 
     @gen.coroutine
