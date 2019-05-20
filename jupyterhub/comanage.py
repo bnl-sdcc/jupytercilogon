@@ -303,126 +303,7 @@ class COManageLocalProcessSpawner(LocalProcessSpawner):
 
 
 class COManageSpawner(Spawner):
-
-    async def start(self):
-        """Start the single-user server."""
-        self.port = random_port()
-        cmd = []
-        env = self.get_env()
-
-        cmd.extend(self.cmd)
-        cmd.extend(self.get_args())
-
-        if self.shell_cmd:
-            # using shell_cmd (e.g. bash -c),
-            # add our cmd list as the last (single) argument:
-            cmd = self.shell_cmd + [' '.join(pipes.quote(s) for s in cmd)]
-
-        self.log.info("Spawning %s", ' '.join(pipes.quote(s) for s in cmd))
-        popen_kwargs = dict(
-            #preexec_fn=self.make_preexec_fn(self.user.name),
-            preexec_fn=self.make_preexec_fn(self.user.unixname),
-            start_new_session=True,  # don't forward signals
-        )
-        popen_kwargs.update(self.popen_kwargs)
-        # don't let user config override env
-        popen_kwargs['env'] = env
-        try:
-            self.proc = Popen(cmd, **popen_kwargs)
-        except PermissionError:
-            # use which to get abspath
-            script = shutil.which(cmd[0]) or cmd[0]
-            self.log.error("Permission denied trying to run %r. Does %s have access to this file?",
-                #script, self.user.name,
-                script, self.user.unixname,
-            )
-            raise
-
-        self.pid = self.proc.pid
-
-        if self.__class__ is not LocalProcessSpawner:
-            # subclasses may not pass through return value of super().start,
-            # relying on deprecated 0.6 way of setting ip, port,
-            # so keep a redundant copy here for now.
-            # A deprecation warning will be shown if the subclass
-            # does not return ip, port.
-            if self.ip:
-                self.server.ip = self.ip
-            self.server.port = self.port
-            self.db.commit()
-        return (self.ip or '127.0.0.1', self.port)
-
     
-    async def stop(self, now=False):
-        """Stop the single-user server process for the current user.
-
-        If `now` is False (default), shutdown the server as gracefully as possible,
-        e.g. starting with SIGINT, then SIGTERM, then SIGKILL.
-        If `now` is True, terminate the server immediately.
-
-        The coroutine should return when the process is no longer running.
-        """
-        if not now:
-            status = await self.poll()
-            if status is not None:
-                return
-            self.log.debug("Interrupting %i", self.pid)
-            await self._signal(signal.SIGINT)
-            await self.wait_for_death(self.interrupt_timeout)
-
-        # clean shutdown failed, use TERM
-        status = await self.poll()
-        if status is not None:
-            return
-        self.log.debug("Terminating %i", self.pid)
-        await self._signal(signal.SIGTERM)
-        await self.wait_for_death(self.term_timeout)
-
-        # TERM failed, use KILL
-        status = await self.poll()
-        if status is not None:
-            return
-        self.log.debug("Killing %i", self.pid)
-        await self._signal(signal.SIGKILL)
-        await self.wait_for_death(self.kill_timeout)
-
-        status = await self.poll()
-        if status is None:
-            # it all failed, zombie process
-            self.log.warning("Process %i never died", self.pid)
-
-
-    async def poll(self):
-        """Poll the spawned process to see if it is still running.
-
-        If the process is still running, we return None. If it is not running,
-        we return the exit code of the process if we have access to it, or 0 otherwise.
-        """
-        # if we started the process, poll with Popen
-        if self.proc is not None:
-            status = self.proc.poll()
-            if status is not None:
-                # clear state if the process is done
-                self.clear_state()
-            return status
-
-        # if we resumed from stored state,
-        # we don't have the Popen handle anymore, so rely on self.pid
-        if not self.pid:
-            # no pid, not running
-            self.clear_state()
-            return 0
-
-        # send signal 0 to check if PID exists
-        # this doesn't work on Windows, but that's okay because we don't support Windows.
-        alive = await self._signal(0)
-        if not alive:
-            self.clear_state()
-            return 0
-        else:
-            return None
-        
-
     @property
     def _log_name(self):
         """Return username:servername or username
@@ -430,10 +311,10 @@ class COManageSpawner(Spawner):
         Used in logging for consistency with named servers.
         """
         if self.name:
-            #return '%s:%s' % (self.user.name, self.name)
-            return '%s:%s' % (self.user.unixname, self.name)
+            return '%s:%s' % (self.user.name, self.name)
         else:
-            #return self.user.name
-            return self.user.unixname
+            return self.user.name
+    
+
         
         
