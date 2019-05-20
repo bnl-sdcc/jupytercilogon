@@ -109,7 +109,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
     def add_system_user(self, user):
         """Create a new local UNIX user on the system.
 
-        Tested to work on FreeBSD and Linux, at least.
+           Tested to work on FreeBSD and Linux, at least.
         """
         #name = user.name
         name = self.get_mapped_unixname(user)
@@ -130,14 +130,15 @@ class COManageLocalAuthenticator(LocalAuthenticator):
             unixname = unixname.replace('.','')           
         elif self.unixname_source == 'eppn_mapfile':
             try:
-                unixname = self.match_eppn_mapfile(user.name)
+                unixname = self.match_eppn_mapfile(user)
+                user.unixname = unixname
             except Exception as e:
                 raise RuntimeError("Failed to map user %s %s " % (user.name, e))
         self.log.info("Mapped %s to %s" % (user.name, unixname))
         return unixname
  
             
-    def match_eppn_mapfile(self, username):
+    def match_eppn_mapfile(self, user):
         self.log.debug("Opening mapfile %s" % self.eppn_mapfile)
         f = open(self.eppn_mapfile)
         lines = f.readlines()
@@ -155,8 +156,8 @@ class COManageLocalAuthenticator(LocalAuthenticator):
             (user, unix) = line.split()
             usermap[user] = unix
         self.log.debug("Mapfile with %d entries." % len(usermap) )
-        target = map[username]
-        self.log.debug("Got target unix name without exception.")
+        target = usermap[user.name]
+        self.log.debug("Got target unix name %s without exception." % target)
         return target    
       
 
