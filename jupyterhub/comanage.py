@@ -133,7 +133,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
                 unixname = self.match_eppn_mapfile(user)
                 user.unixname = unixname
             except Exception as e:
-                raise RuntimeError("Failed to map user %s %s " % (user.name, e))
+                raise RuntimeError("Failed to map user %s %s " % (user, e))
         self.log.info("Mapped %s to %s" % (user.name, unixname))
         return unixname
  
