@@ -82,7 +82,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
 
         If self.create_system_users, the user will attempt to be created if it doesn't exist.
         """
-        user.unixname = get_mapped_unixname(user)
+        user.unixname = self.get_mapped_unixname(user)
         user_exists = await maybe_future(self.system_user_exists(user))
         #user_exists = await maybe_future(self.system_user_exists(unixuser))
         if not user_exists:
