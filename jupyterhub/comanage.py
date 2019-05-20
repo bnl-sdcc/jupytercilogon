@@ -111,7 +111,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
 
            Tested to work on FreeBSD and Linux, at least.
         """
-        #name = user.name
+        self.log.debug("add_system_user called for %s of type %s " % (user, type(user)))
         name = self.get_mapped_unixname(user)
         cmd = [ arg.replace('USERNAME', name) for arg in self.add_user_cmd ] + [name]
         self.log.info("Creating user: %s", ' '.join(map(pipes.quote, cmd)))
