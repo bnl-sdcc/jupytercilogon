@@ -423,8 +423,6 @@ class COManageSpawner(Spawner):
             return None
         
 
-
-
     @property
     def _log_name(self):
         """Return username:servername or username
@@ -432,8 +430,10 @@ class COManageSpawner(Spawner):
         Used in logging for consistency with named servers.
         """
         if self.name:
-            #return '%s:%s' % (self.user.name, self.name)
-            return '%s:%s' % (self.user.unixname, self.name)
+            return '%s:%s' % (self.user.name, self.name)
+            #return '%s:%s' % (self.user.unixname, self.name)
         else:
-            #return self.user.name
-            return self.user.unixname
+            return self.user.name
+            #return self.user.unixname
+        
+        
