@@ -59,13 +59,11 @@ from jupyterhub.spawner import LocalProcessSpawner, Spawner
 
 
 
-
-class NormalizingLocalAuthenticator(LocalAuthenticator):
+class COManageLocalAuthenticator(LocalAuthenticator):
     '''
-    Creates local UNIX username from COManage/CILogon eppn. 
+    Creates local UNIX username from COManage/CILogon sources. 
     
     '''   
-
     @default('add_user_cmd')
     def _add_user_cmd_default(self):
         """Guess the most likely-to-work adduser command for each platform"""
@@ -84,9 +82,7 @@ class NormalizingLocalAuthenticator(LocalAuthenticator):
 
         If self.create_system_users, the user will attempt to be created if it doesn't exist.
         """
-        unixname = user.name.replace('@','')
-        unixname = unixname.replace('.','')
-        user.unixname = unixname
+        user.unixname = get_mapped_unixname(user)
         user_exists = await maybe_future(self.system_user_exists(user))
         #user_exists = await maybe_future(self.system_user_exists(unixuser))
         if not user_exists:
@@ -116,7 +112,7 @@ class NormalizingLocalAuthenticator(LocalAuthenticator):
         Tested to work on FreeBSD and Linux, at least.
         """
         #name = user.name
-        name = user.unixname
+        name = self.get_mapped_unixname(user)
         cmd = [ arg.replace('USERNAME', name) for arg in self.add_user_cmd ] + [name]
         self.log.info("Creating user: %s", ' '.join(map(pipes.quote, cmd)))
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
@@ -126,21 +122,57 @@ class NormalizingLocalAuthenticator(LocalAuthenticator):
             raise RuntimeError("Failed to create system user %s: %s" % (name, err))
 
 
+    def get_mapped_unixname(self, user):
+        self.log.debug("Trying to map user %s" % user.name)
+        unixname = None
+        if self.unixname_source == 'eppn_normalized':
+            unixname = user.name.replace('@','')
+            unixname = unixname.replace('.','')           
+        elif self.unixname_source == 'eppn_mapfile':
+            try:
+                unixname = self.match_eppn_mapfile(user.name)
+            except( Exception, ex):
+                raise RuntimeError("Failed to map user %s %s " % (user.name, ex))
+        self.log.info("Mapped %s to %s" % (user.name, unixname))
+        return unixname
+ 
+            
+    def match_eppn_mapfile(self, username):
+        self.log.debug("Opening mapfile %s" % self.eppn_mapfile)
+        f = open(self.eppn_mapfile)
+        lines = f.readlines()
+        f.close()
+        self.log.debug("Filtering lines and making map...")
+        goodlines = []
+        usermap = {}
+        for line in lines:
+            if "#" in line:
+                pass
+            else:
+                nline = line.strip()
+                goodlines.append(nline)
+        for line in goodlines:
+            (user, unix) = line.split()
+            usermap[user] = unix
+        self.log.debug("Mapfile with %d entries." % len(usermap) )
+        target = map[username]
+        self.log.debug("Got target unix name without exception.")
+        return target    
+      
 
 
-class NormalizedLocalProcessSpawner(LocalProcessSpawner):
+
+class COManageLocalProcessSpawner(LocalProcessSpawner):
 
     def user_env(self, env):
         """Augment environment of spawned process with user specific env variables."""
         import pwd
-        unixname = self.user.name.replace('@','')
-        unixname = unixname.replace('.','')
         #env['USER'] = self.user.name
-        env['USER'] = unixname
+        env['USER'] = self.user.unixname
         #home = pwd.getpwnam(self.user.name).pw_dir
-        home = pwd.getpwnam(unixname).pw_dir
+        home = pwd.getpwnam(self.user.unixname).pw_dir
         #shell = pwd.getpwnam(self.user.name).pw_shell
-        shell = pwd.getpwnam(unixname).pw_shell
+        shell = pwd.getpwnam(self.user.unixname).pw_shell
         # These will be empty if undefined,
         # in which case don't set the env:
         if home:
@@ -164,11 +196,9 @@ class NormalizedLocalProcessSpawner(LocalProcessSpawner):
             cmd = self.shell_cmd + [' '.join(pipes.quote(s) for s in cmd)]
 
         self.log.info("Spawning %s", ' '.join(pipes.quote(s) for s in cmd))
-        unixname = self.user.name.replace('@','')
-        unixname = unixname.replace('.','')
         popen_kwargs = dict(
             #preexec_fn=self.make_preexec_fn(self.user.name),
-            preexec_fn=self.make_preexec_fn(unixname),
+            preexec_fn=self.make_preexec_fn(self.user.unixname),
             start_new_session=True,  # don't forward signals
         )
         popen_kwargs.update(self.popen_kwargs)
@@ -271,8 +301,7 @@ class NormalizedLocalProcessSpawner(LocalProcessSpawner):
 
 
 
-
-class NormalizedSpawner(Spawner):
+class COManageSpawner(Spawner):
 
     async def start(self):
         """Start the single-user server."""
@@ -289,11 +318,9 @@ class NormalizedSpawner(Spawner):
             cmd = self.shell_cmd + [' '.join(pipes.quote(s) for s in cmd)]
 
         self.log.info("Spawning %s", ' '.join(pipes.quote(s) for s in cmd))
-        unixname = self.user.name.replace('@','')
-        unixname = unixname.replace('.','')
         popen_kwargs = dict(
             #preexec_fn=self.make_preexec_fn(self.user.name),
-            preexec_fn=self.make_preexec_fn(unixname),
+            preexec_fn=self.make_preexec_fn(self.user.unixname),
             start_new_session=True,  # don't forward signals
         )
         popen_kwargs.update(self.popen_kwargs)

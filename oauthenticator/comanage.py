@@ -10,9 +10,12 @@ Caveats:
 
 - For user whitelist/admin purposes, username will be the ePPN by default.
   This is typically an email address and may not work as a Unix userid.
-  JupyterHub username is normalized to UNIX username by removing '.' and '@' chars. 
+  
+  For unixname_source = eppn_normalized, JupyterHub username is normalized to UNIX username by removing '.' and '@' chars. 
   e.g. jhover@bnl.gov  -> jhoverbnlgov
-
+  
+  For unixname_source = eppn_mapfile, Jupyter hub opens eppn_mapfile and uses target from there. 
+  
 - Default username_claim of ePPN does not work for all providers,
   e.g. generic OAuth such as Google.
   Use `c.CILogonOAuthenticator.username_claim = 'email'` to use
@@ -129,6 +132,7 @@ class COManageOAuthenticator(OAuthenticator):
         config=True,
         help="""Name of claim for valid user groups.""",
     )
+
 
 
     @gen.coroutine
