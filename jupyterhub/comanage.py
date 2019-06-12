@@ -94,6 +94,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
 
         await maybe_future(super().add_user(user))
 
+
     @staticmethod
     def system_user_exists(user):
         """Check if the user exists on the system"""
@@ -121,7 +122,6 @@ class COManageLocalAuthenticator(LocalAuthenticator):
             err = p.stdout.read().decode('utf8', 'replace')
             raise RuntimeError("Failed to create system user %s: %s" % (name, err))
 
-
     def get_mapped_unixname(self, user):
         self.log.debug("Trying to map user %s" % user.name)
         unixname = None
@@ -137,7 +137,7 @@ class COManageLocalAuthenticator(LocalAuthenticator):
         self.log.info("Mapped %s to %s" % (user.name, unixname))
         return unixname
  
-            
+         
     def match_eppn_mapfile(self, user):
         self.log.debug("Opening mapfile %s" % self.eppn_mapfile)
         f = open(self.eppn_mapfile)
