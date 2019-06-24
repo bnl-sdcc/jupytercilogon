@@ -10,7 +10,7 @@ os.environ['JUPYTERHUB_CRYPT_KEY'] = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 from oauthenticator.comanage import COManageOAuthenticator, LocalCOManageOAuthenticator
 from jupyterhub.comanage import COManageLocalProcessSpawner
 
-c.JupyterHub.spawner_class = 'jupyterhub.comanage.COManageSpawner'
+c.JupyterHub.spawner_class = COManageLocalProcessSpawner
 c.JupyterHub.authenticator_class = LocalCOManageOAuthenticator
 
 # Settings to directly use (normalized) eppn from CILogon/Comanage as unix account. 
